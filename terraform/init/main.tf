@@ -2,13 +2,9 @@ provider "aws" {
   region = var.aws_region
 }
 
-resource "random_pet" "bucket_suffix" {
-  length    = 5
-  separator = "-"
-}
 
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "${var.bucket_name}-${random_pet.bucket_suffix.id}"
+  bucket = var.bucket_name
 
   lifecycle {
     prevent_destroy = true
