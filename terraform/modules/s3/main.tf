@@ -23,6 +23,7 @@ resource "aws_s3_bucket_website_configuration" "spa_bucket" {
   }
 }
 
+
 resource "aws_s3_bucket_ownership_controls" "spa_bucket" {
   bucket = aws_s3_bucket.spa_bucket.id
   rule {
@@ -57,6 +58,7 @@ resource "aws_s3_bucket_policy" "spa_bucket_policy" {
     ]
   })
 }
+
 
 resource "null_resource" "spa_bucket_deploy" {
   triggers = {
