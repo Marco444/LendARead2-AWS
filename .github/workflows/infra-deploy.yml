@@ -47,7 +47,7 @@ jobs:
       - name: Run Maven Tests
         id: test
         run: |
-          cd LendARead2-AWS/LendARead2/
+          cd LendARead2/
           mvn clean test || OUTPUT=$? 
           echo "TEST_RESULT=${OUTPUT:-0}" >> $GITHUB_OUTPUT
       
