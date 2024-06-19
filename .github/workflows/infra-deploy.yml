@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
+
 jobs:
   extract-tag:
     runs-on: ubuntu-latest
@@ -22,12 +23,40 @@ jobs:
         run: |
           PARSED=$(echo $RAW_TAG | sed 's/^v\(.*\)/\1/')
           echo "TAG=$PARSED" >> $GITHUB_OUTPUT
-
+  run-tests:
+    runs-on: ubuntu-latest
+    needs:
+      - extract-tag
+    outputs:
+      TEST_RESULT: ${{ steps.test.outputs.TEST_RESULT }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: Setup Maven Action
+        uses: s4u/setup-maven-action@v1.13.0
+        with:
+          java-version: 8
+          maven-version: 3.9.1
+          checkout-token: ${{ github.token }}
+      - name: Set up SSL keys
+        run: |
+          sudo apt update
+          openssl s_client -showcerts -connect maven.java.net:443 < /dev/null 2> /dev/null | openssl x509 -outform PEM > maven_cert.pem
+          sudo keytool -import -trustcacerts -file maven_cert.pem -alias maven-snapshot -keystore $JAVA_HOME/jre/lib/security/cacerts -storepass changeit -noprompt
+      - name: Run Maven Tests
+        id: test
+        run: |
+          cd LendARead2-AWS/LendARead2/
+          mvn clean test || OUTPUT=$? 
+          echo "TEST_RESULT=${OUTPUT:-0}" >> $GITHUB_OUTPUT
+      
   terraform-init:
     runs-on: ubuntu-latest
     needs: 
+     - run-tests
       - extract-tag
-    
+  
+
     env:
       TF_VAR_branch_env: "main" 
       AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION}}
@@ -57,12 +86,6 @@ jobs:
         sed "s|\${bucket}|$AWS_BUCKET_NAME_TERRAFORM_STATE|g" backend.tpl > backend.tf
         sed -i "s|\${region}|$AWS_REGION|g" backend.tf
         sed -i "s|\${dynamodb_table}|$AWS_DYNAMODB_NAME|g" backend.tf
-
-    - name: Set up SSL keys
-      run: |
-        sudo apt update
-        openssl s_client -showcerts -connect maven.java.net:443 < /dev/null 2> /dev/null | openssl x509 -outform PEM > maven_cert.pem
-        sudo keytool -import -trustcacerts -file maven_cert.pem -alias maven-snapshot -keystore $JAVA_HOME/jre/lib/security/cacerts -storepass changeit -noprompt
 
     - name: Run terraform apply 
       run: |
