@@ -1,0 +1,36 @@
+name: Initialize Architecture Backend
+
+on:
+  push:
+    tags:
+      - init
+
+jobs:
+  init-architecture-backend:
+    runs-on: ubuntu-latest
+    environment: aws
+    
+    env:
+      AWS_DEFAULT_REGION: "us-east-1"
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      TF_VAR_aws_region: "us-east-1"
+      TF_VAR_bucket_name: ${{ secrets.S3_TERRAFORM_STATE_NAME }}
+      TF_VAR_repository_name: "lendaread_ecr_region"
+      TF_VAR_dynamodb_table_name: ${{ secrets.DYNAMODB_TERRAFORM_LOCK_NAME }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.0.0
+
+    - name: Initialize Terraform backend resources
+      run: |
+        cd terraform/init
+        terraform init
+        terraform apply --auto-approve
