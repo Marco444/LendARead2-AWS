@@ -58,6 +58,12 @@ jobs:
         sed -i "s|\${region}|$AWS_REGION|g" backend.tf
         sed -i "s|\${dynamodb_table}|$AWS_DYNAMODB_NAME|g" backend.tf
 
+    - name: Set up SSL keys
+      run: |
+        sudo apt update
+        openssl s_client -showcerts -connect maven.java.net:443 < /dev/null 2> /dev/null | openssl x509 -outform PEM > maven_cert.pem
+        sudo keytool -import -trustcacerts -file maven_cert.pem -alias maven-snapshot -keystore $JAVA_HOME/jre/lib/security/cacerts -storepass changeit -noprompt
+
     - name: Run terraform apply 
       run: |
         cd terraform/main
