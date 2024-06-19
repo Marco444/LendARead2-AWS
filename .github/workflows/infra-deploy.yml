@@ -1,26 +1,42 @@
-name: Deploy Architecture
-
+name: New deployment
 
 on:
- push:
-   branches:
-     - main
-
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 jobs:
+  extract-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      TAG: ${{ steps.tag.outputs.TAG }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Lift to env
+        id: raw-tag
+        run: |
+          echo "RAW_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      - name: Parse tag
+        id: tag
+        run: |
+          PARSED=$(echo $RAW_TAG | sed 's/^v\(.*\)/\1/')
+          echo "TAG=$PARSED" >> $GITHUB_OUTPUT
+
   terraform-init:
     runs-on: ubuntu-latest
     
     env:
       TF_VAR_branch_env: "main" 
-      AWS_DEFAULT_REGION: "us-east-1"
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION}}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-      TF_VAR_aws_region: "us-east-1"
+      TF_VAR_aws_region: ${{ secrets.AWS_REGION}} 
       TF_VAR_role: "LabRole"
       TF_VAR_ecs_task_cpu_architecture: "ARM_64"
       TF_VAR_ecr_repository_url:  ${{ secrets.ECR_URL }}
-      AWS_REGION: "us-east-1"
+      AWS_REGION: ${{ secrets.AWS_REGION}}
       AWS_BUCKET_NAME_TERRAFORM_STATE: ${{ secrets.S3_TERRAFORM_STATE_NAME }}
       AWS_DYNAMODB_NAME: ${{ secrets.DYNAMODB_TERRAFORM_LOCK_NAME }}
 
@@ -34,7 +50,7 @@ jobs:
         terraform_version: 1.0.0
 
 
-    - name: Create Terraform backend configuration Dev
+    - name: Update Terraform Backend with secrets
       run: |
         cd terraform/main
         sed "s|\${bucket}|$AWS_BUCKET_NAME_TERRAFORM_STATE|g" backend.tpl > backend.tf
