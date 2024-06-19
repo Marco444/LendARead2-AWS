@@ -38,7 +38,7 @@ jobs:
       TF_VAR_role: "LabRole"
       TF_VAR_ecs_task_cpu_architecture: "ARM_64"
       AWS_REGION: ${{ secrets.AWS_REGION}}
-      AWS_BUCKET_NAME_TERRAFORM_STATE:"acsffad-naturally-terribly-briefly-grateful-pup"
+      AWS_BUCKET_NAME_TERRAFORM_STATE: "acsffad-naturally-terribly-briefly-grateful-pup"
       AWS_DYNAMODB_NAME: ${{ secrets.DYNAMODB_TERRAFORM_LOCK_NAME }}
 
     steps:
