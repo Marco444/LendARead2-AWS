@@ -23,6 +23,7 @@ jobs:
         run: |
           PARSED=$(echo $RAW_TAG | sed 's/^v\(.*\)/\1/')
           echo "TAG=$PARSED" >> $GITHUB_OUTPUT
+
   run-tests:
     runs-on: ubuntu-latest
     needs:
@@ -53,7 +54,7 @@ jobs:
   terraform-init:
     runs-on: ubuntu-latest
     needs: 
-     - run-tests
+      - run-tests
       - extract-tag
   
 
