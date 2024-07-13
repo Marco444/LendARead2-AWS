@@ -81,7 +81,7 @@ resource "null_resource" "spa_bucket" {
       set -e
       echo "Setting environment variables"
       export VITE_APP_BASE_PATH='/'
-      export VITE_API_BASE_URL=''
+      export VITE_API_BASE_URL='http://${var.alb}:8080'
       
       echo "Listing contents of the cloned repository"
       
