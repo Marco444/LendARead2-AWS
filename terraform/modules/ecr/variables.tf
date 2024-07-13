@@ -12,4 +12,7 @@ variable "image_tag_mutability" {
   default     = "MUTABLE"
   description = "Tag mutability setting of the repository"
 }
-
+variable "api_base_url" {
+  description = "Api base url"
+  type        = string
+}
