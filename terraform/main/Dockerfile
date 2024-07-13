@@ -32,7 +32,7 @@ RUN wget https://archive.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-mav
 
 # Clone the repository
 RUN git config --global http.postBuffer 1048576000  # Set buffer to 1000MB
-RUN for i in {1..5}; do git clone "https://github.com/Marco444/LendARead2-AWS.git" /usr/src/LendARead2AWS && break || sleep 5; done
+RUN for i in {1..5}; do git clone -b "s3-spa" "https://github.com/Marco444/LendARead2-AWS.git" /usr/src/LendARead2AWS && break || sleep 5; done
 
 # Change the working directory
 WORKDIR /usr/src/LendARead2AWS/LendARead2/
