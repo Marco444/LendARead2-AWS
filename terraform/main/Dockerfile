@@ -2,7 +2,7 @@
 FROM openjdk:8-jdk
 
 # Set environment variables for the application
-ENV VITE_APP_BASE_PATH='/webapp' \
+ENV VITE_APP_BASE_PATH='' \
     VITE_APP_BASE_URL='http://lb-1891763237.us-east-1.elb.amazonaws.com:8080' \
     DB_URL_ENV="jdbc:postgresql://database-1.ct80qs8yuayi.us-east-1.rds.amazonaws.com:5432/" \
     DB_USERNAME_ENV="postgres" \
