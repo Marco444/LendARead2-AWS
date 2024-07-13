@@ -1,3 +1,4 @@
+
 resource "random_pet" "bucket_suffix" {
   length    = 3
   separator = "-"
