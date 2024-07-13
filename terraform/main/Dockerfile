@@ -1,5 +1,5 @@
 # Use a base image with JDK installed, required for Tomcat and Maven
-FROM openjdk:8
+FROM openjdk:8-jdk
 
 # Set environment variables for the application
 ENV VITE_APP_BASE_PATH='/webapp' \
@@ -9,7 +9,7 @@ ENV VITE_APP_BASE_PATH='/webapp' \
     DB_PASSWORD_ENV="1SRcd8pto"
 
 # Set environment variables
-ENV CATALINA_HOME /usr/local/tomcat7
+ENV CATALINA_HOME /usr/local/tomcat
 ENV M2_HOME /opt/apache-maven-3.6.3
 ENV MAVEN_HOME /opt/apache-maven-3.6.3
 ENV PATH $CATALINA_HOME/bin:$M2_HOME/bin:$PATH
@@ -20,8 +20,8 @@ RUN apt-get update && \
 
 # Download and install Tomcat 7
 RUN wget https://archive.apache.org/dist/tomcat/tomcat-7/v7.0.109/bin/apache-tomcat-7.0.109.tar.gz -O /tmp/tomcat7.tar.gz && \
-    tar -xvzf /tmp/tomcat7.tar.gz -C /tmp && \
-    mv /tmp/apache-tomcat-7.0.109 $CATALINA_HOME && \
+    tar -xvzf /tmp/tomcat7.tar.gz -C /usr/local && \
+    mv /usr/local/apache-tomcat-7.0.109 $CATALINA_HOME && \
     rm /tmp/tomcat7.tar.gz
 
 # Download and install Maven
@@ -46,5 +46,5 @@ RUN mv /usr/src/LendARead2AWS/LendARead2/webapp/target/webapp.war $CATALINA_HOME
 EXPOSE 8080
 
 # Set the default command to run when starting the container
-CMD ["/usr/local/tomcat7/bin/catalina.sh", "run"]
+CMD ["catalina.sh", "run"]
 
