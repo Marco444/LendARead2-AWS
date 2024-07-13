@@ -1,6 +1,11 @@
+resource "random_pet" "bucket_suffix" {
+  length    = 3
+  separator = "-"
+}
+
 
 resource "aws_s3_bucket" "spa_bucket" {
-  bucket = var.bucket_name
+  bucket = "${var.bucket_name}-${random_pet.bucket_suffix.id}"
 }
 
 resource "aws_s3_bucket_public_access_block" "spa_bucket" {
@@ -27,16 +32,16 @@ resource "aws_s3_bucket_website_configuration" "spa_bucket" {
 resource "aws_s3_bucket_ownership_controls" "spa_bucket" {
   bucket = aws_s3_bucket.spa_bucket.id
   rule {
-  object_ownership = "BucketOwnerPreferred"
+    object_ownership = "BucketOwnerPreferred"
   }
 }
 
 resource "aws_s3_bucket_acl" "spa_bucket" {
   bucket = aws_s3_bucket.spa_bucket.id
-  acl = "public-read"
+  acl    = "public-read"
   depends_on = [
-  aws_s3_bucket_ownership_controls.spa_bucket,
-  aws_s3_bucket_public_access_block.spa_bucket
+    aws_s3_bucket_ownership_controls.spa_bucket,
+    aws_s3_bucket_public_access_block.spa_bucket
   ]
 }
 
@@ -45,22 +50,22 @@ resource "aws_s3_bucket_acl" "spa_bucket" {
 resource "aws_s3_bucket_policy" "site" {
   bucket = aws_s3_bucket.spa_bucket.id
   policy = jsonencode({
-  Version = "2012-10-17"
-  Statement = [
-    {
-    Sid       = "PublicReadGetObject"
-    Effect    = "Allow"
-    Principal = "*"
-    Action    = "s3:GetObject"
-    Resource = [
-      aws_s3_bucket.spa_bucket.arn,
-      "${aws_s3_bucket.spa_bucket.arn}/*",
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource = [
+          aws_s3_bucket.spa_bucket.arn,
+          "${aws_s3_bucket.spa_bucket.arn}/*",
+        ]
+      },
     ]
-    },
-  ]
   })
   depends_on = [
-  aws_s3_bucket_public_access_block.spa_bucket
+    aws_s3_bucket_public_access_block.spa_bucket
   ]
 }
 
